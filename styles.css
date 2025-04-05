@@ -234,3 +234,27 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+.movie-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.edit-btn {
+  background-color: #2196f3 !important;
+  padding: 0.4rem 0.8rem;
+}
+
+.delete-btn {
+  background-color: #f44336 !important;
+  padding: 0.4rem 0.8rem;
+}
+
+.movie-element__info h2 {
+  margin-bottom: 0.8rem;
+}
+
+.movie-element__info p {
+  margin-bottom: 0.5rem;
+}
