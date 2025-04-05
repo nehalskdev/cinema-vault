@@ -74,7 +74,7 @@ const renderMovieElement = (id, title, imageUrl, rating) => {
     </div>
     <div class="movie-element__info">
       <h2>${title}</h2>
-      <p>${rating}/5 stars</p>
+      <p>${rating}/10 stars</p>
     </div>
   `;
   newMovieElement.addEventListener("click", deleteMovieElement.bind(null, id));
@@ -86,8 +86,8 @@ const addMovieHandler = () => {
   const imageValue = userInputs[1].value.trim();
   const ratingValue = userInputs[2].value;
 
-  if (!titleValue || !imageValue || +ratingValue < 1 || +ratingValue > 5) {
-    alert("Please enter valid values (Rating between 1-5)");
+  if (!titleValue || !imageValue || +ratingValue < 1 || +ratingValue > 10) {
+    alert("Please enter valid values (Rating between 1-10)");
     return;
   }
 
