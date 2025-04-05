@@ -10,15 +10,14 @@ const dangerBtn = document.getElementById("btn-danger");
 let successBtn = document.getElementById("btn-success");
 
 const movies = [];
+let currentMovieId = null;
 
 const toggleBackdrop = () => {
   backdrop.classList.toggle("visible");
 };
 
 const clearUserInputs = () => {
-  for (const usrInput of userInputs) {
-    usrInput.value = "";
-  }
+  userInputs.forEach((input) => (input.value = ""));
 };
 
 const closeMovieModal = () => {
@@ -29,6 +28,8 @@ const cancelAddMovie = () => {
   toggleBackdrop();
   closeMovieModal();
   clearUserInputs();
+  currentMovieId = null;
+  addBtn.textContent = "Add";
 };
 
 const updateUI = () => {
@@ -64,21 +65,49 @@ const deleteMovieConfirmation = (movieId) => {
   updateUI();
 };
 
-const renderMovieElement = (id, title, imageUrl, rating) => {
+const renderMovieElement = (movie) => {
+  const existingElement = document.querySelector(`[data-id="${movie.id}"]`);
+  if (existingElement) existingElement.remove();
+
   const newMovieElement = document.createElement("li");
   newMovieElement.className = "movie-element";
-  newMovieElement.dataset.id = id;
+  newMovieElement.dataset.id = movie.id;
   newMovieElement.innerHTML = `
     <div class="movie-element__image">
-      <img src="${imageUrl}" alt="${title}">
+      <img src="${movie.image}" alt="${movie.title}">
     </div>
     <div class="movie-element__info">
-      <h2>${title}</h2>
-      <p>${rating}/10 stars</p>
+      <h2>${movie.title}</h2>
+      <p>${movie.rating}/5 stars ⭐</p>
+      <div class="movie-actions">
+        <button class="btn edit-btn">Edit</button>
+        <button class="btn delete-btn">Delete</button>
+      </div>
     </div>
   `;
-  newMovieElement.addEventListener("click", deleteMovieElement.bind(null, id));
+
+  newMovieElement
+    .querySelector(".delete-btn")
+    .addEventListener("click", () => deleteMovieElement(movie.id));
+
+  newMovieElement
+    .querySelector(".edit-btn")
+    .addEventListener("click", () => openEditModal(movie.id));
+
   document.getElementById("movie-list").append(newMovieElement);
+};
+
+const openEditModal = (movieId) => {
+  const movie = movies.find((m) => m.id === movieId);
+  if (!movie) return;
+
+  userInputs[0].value = movie.title;
+  userInputs[1].value = movie.image;
+  userInputs[2].value = movie.rating;
+  currentMovieId = movieId;
+  addBtn.textContent = "Update";
+  movieModal.classList.add("visible");
+  toggleBackdrop();
 };
 
 const addMovieHandler = () => {
@@ -86,28 +115,40 @@ const addMovieHandler = () => {
   const imageValue = userInputs[1].value.trim();
   const ratingValue = userInputs[2].value;
 
-  if (!titleValue || !imageValue || +ratingValue < 1 || +ratingValue > 10) {
-    alert("Please enter valid values (Rating between 1-10)");
+  if (!titleValue || !imageValue || +ratingValue < 1 || +ratingValue > 5) {
+    alert("Please enter valid values (Rating between 1-5)");
     return;
   }
 
-  const newMovie = {
-    id: Date.now().toString(),
-    title: titleValue,
-    image: imageValue,
-    rating: ratingValue,
-  };
+  if (currentMovieId) {
+    // Update existing movie
+    const movieIndex = movies.findIndex((m) => m.id === currentMovieId);
+    if (movieIndex === -1) return;
 
-  movies.push(newMovie);
-  renderMovieElement(
-    newMovie.id,
-    newMovie.title,
-    newMovie.image,
-    newMovie.rating
-  );
+    movies[movieIndex] = {
+      id: currentMovieId,
+      title: titleValue,
+      image: imageValue,
+      rating: ratingValue,
+    };
+    renderMovieElement(movies[movieIndex]);
+  } else {
+    // Add new movie
+    const newMovie = {
+      id: Date.now().toString(),
+      title: titleValue,
+      image: imageValue,
+      rating: ratingValue,
+    };
+    movies.push(newMovie);
+    renderMovieElement(newMovie);
+  }
+
   closeMovieModal();
   toggleBackdrop();
   clearUserInputs();
+  currentMovieId = null;
+  addBtn.textContent = "Add";
   updateUI();
 };
 
@@ -121,6 +162,8 @@ backdrop.addEventListener("click", () => {
   clearUserInputs();
   closeMovieModal();
   cancelMovieDeletion();
+  currentMovieId = null;
+  addBtn.textContent = "Add";
 });
 
 cancelBtn.addEventListener("click", cancelAddMovie);
